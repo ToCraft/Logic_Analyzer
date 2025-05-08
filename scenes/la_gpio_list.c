@@ -7,12 +7,20 @@
 #include "../scenes/la_scene.h"
 #include "../util/la_utils.h"
 
-void la_gpio_list_menu_callback(void* context, uint32_t index) {
-    FURI_LOG_T(TAG, "la_gpio_list_menu_callback");
+void la_gpio_list_menu_callback_edit_con(void* context, uint32_t index) {
+    FURI_LOG_T(TAG, "la_gpio_list_menu_callback_edit_con");
     LAApp* app = context;
 
     UNUSED(index);
-    scene_manager_handle_custom_event(app->scene_manager, LaEventGpioListSelect);
+    scene_manager_handle_custom_event(app->scene_manager, LaEventGpioListEdit);
+}
+
+void la_gpio_list_menu_callback_create_con(void* context, uint32_t index) {
+    FURI_LOG_T(TAG, "la_gpio_list_menu_callback_create_con");
+    LAApp* app = context;
+
+    UNUSED(index);
+    scene_manager_handle_custom_event(app->scene_manager, LaEventGpioListCreate);
 }
 
 void la_scene_gpio_list_on_enter(void* context) {
@@ -20,18 +28,28 @@ void la_scene_gpio_list_on_enter(void* context) {
     LAApp* app = context;
     submenu_reset(app->gpio_list);
 
-    // add menu entries
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < app->cfg->port_connections_count; i++) {
+        LAPortConnection* connection = &app->cfg->port_connections[i];
+        const char* in = la_gpio_items_get_pin_name(app->gpio_items, connection->in);
+        const char* out = la_gpio_items_get_pin_name(app->gpio_items, connection->out);
+
         // Generate label
         char* str = (char*)malloc(20 * sizeof(char));
         str[0] = '\0';
-        char num_str[10];
-        la_int_to_str(i, num_str);
-        la_concat(str, num_str);
-        la_concat(str, ". Element");
+        la_concat(str, in);
+        la_concat(str, " -> ");
+        la_concat(str, out);
 
-        submenu_add_item(app->gpio_list, str, i, la_gpio_list_menu_callback, app);
+        submenu_add_item(app->gpio_list, str, i, la_gpio_list_menu_callback_edit_con, app);
     }
+
+    // add "Add New" Entry
+    submenu_add_item(
+        app->gpio_list,
+        "+ add new",
+        app->cfg->port_connections_count,
+        la_gpio_list_menu_callback_create_con,
+        app);
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LA_GpioList);
 }
@@ -47,9 +65,18 @@ void la_scene_gpio_list_on_exit(void* context) {
 bool la_scene_gpio_list_on_event(void* context, SceneManagerEvent event) {
     FURI_LOG_T(TAG, "la_scene_gpio_list_on_event");
     LAApp* app = context;
-    if(event.type == SceneManagerEventTypeCustom && event.event == LaEventGpioListSelect) {
-        scene_manager_next_scene(app->scene_manager, LaSceneSelectPort);
-        return true;
+    if(event.type == SceneManagerEventTypeCustom) {
+        if(event.event == LaEventGpioListEdit) {
+            app->gpio_list_select_con = submenu_get_selected_item(app->gpio_list);
+            scene_manager_next_scene(app->scene_manager, LaSceneSelectPort);
+            return true;
+        } else if(event.event == LaEventGpioListCreate) {
+            app->gpio_list_select_con = 0;
+            // increase counter
+            app->cfg->port_connections_count++;
+            scene_manager_next_scene(app->scene_manager, LaSceneSelectPort);
+            return true;
+        }
     }
     return false;
 }

@@ -1,5 +1,6 @@
 #pragma once
 typedef enum {
-    LaEventGpioListSelect,
+    LaEventGpioListEdit,
+    LaEventGpioListCreate,
     LaEventConfigSet
 } LaCustomEvent;

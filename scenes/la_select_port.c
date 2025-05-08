@@ -37,7 +37,6 @@ void la_scene_select_port_on_enter(void* context) {
     LAApp* app = context;
 
     // remove later
-    app->gpio_list_select_con = 0;
     furi_assert(app->gpio_list_select_con < app->cfg->port_connections_count + 1);
 
     uint16_t gpio_in_index;
@@ -92,11 +91,7 @@ bool la_scene_select_port_on_event(void* context, SceneManagerEvent event) {
     UNUSED(app);
 
     if(event.type == SceneManagerEventTypeCustom && event.event == LaEventConfigSet) {
-        // increase counter if necessary
-        if(app->gpio_list_select_con == app->cfg->port_connections_count) {
-            app->cfg->port_connections_count++;
-        }
-
+        // TODO: handle event
         return true;
     }
     return false;
