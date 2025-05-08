@@ -1,0 +1,31 @@
+#include "la_utils.h"
+
+void la_int_to_str(int num, char* str) {
+    int i = 0;
+    if(num == 0) {
+        str[i++] = '0';
+    } else {
+        while(num > 0) {
+            str[i++] = (num % 10) + '0';
+            num /= 10;
+        }
+    }
+    str[i] = '\0';
+    for(int j = 0; j < i / 2; j++) {
+        char temp = str[j];
+        str[j] = str[i - j - 1];
+        str[i - j - 1] = temp;
+    }
+}
+
+void la_concat(char* dest, const char* src) {
+    while(*dest) {
+        dest++;
+    }
+    while(*src) {
+        *dest = *src;
+        dest++;
+        src++;
+    }
+    *dest = '\0';
+}
