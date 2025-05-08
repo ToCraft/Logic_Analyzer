@@ -22,9 +22,17 @@ bool la_scene_manager_navigation_event_callback(void* context) {
 void logic_analyzer_free(LAApp* app) {
     FURI_LOG_T(TAG, "free logic analyzer");
     scene_manager_free(app->scene_manager);
-    view_dispatcher_remove_view(app->view_dispatcher, LA_Menu);
+    view_dispatcher_remove_view(app->view_dispatcher, LA_GpioList);
+    view_dispatcher_remove_view(app->view_dispatcher, LA_SelectPort);
     view_dispatcher_free(app->view_dispatcher);
+    // free scenes
     submenu_free(app->gpio_list);
+    variable_item_list_free(app->select_port);
+
+    la_gpio_items_free(app->gpio_items);
+
+    free(app->cfg->port_connections);
+    free(app->cfg);
     free(app);
 }
 
@@ -38,8 +46,9 @@ void logic_analyzer_view_dispatcher_init(LAApp* app) {
     FURI_LOG_T(TAG, "logic_analyzer_view_dispatcher_init");
     app->view_dispatcher = view_dispatcher_alloc();
 
-    // allocate vies
+    // allocate views
     app->gpio_list = submenu_alloc();
+    app->select_port = variable_item_list_alloc();
 
     // assign event context
     FURI_LOG_D(TAG, "setting callbacks");
@@ -52,12 +61,16 @@ void logic_analyzer_view_dispatcher_init(LAApp* app) {
 
     // add views to the dispatcher, indexed by their enum value
     FURI_LOG_D(TAG, "adding view submenu");
-    view_dispatcher_add_view(app->view_dispatcher, LA_Menu, submenu_get_view(app->gpio_list));
+    view_dispatcher_add_view(app->view_dispatcher, LA_GpioList, submenu_get_view(app->gpio_list));
+    view_dispatcher_add_view(
+        app->view_dispatcher, LA_SelectPort, variable_item_list_get_view(app->select_port));
 }
 
 LAApp* logic_analyzer_init() {
     FURI_LOG_T(TAG, "init");
     LAApp* app = malloc(sizeof(LAApp));
+    app->cfg = malloc(sizeof(LAConfig));
+    app->cfg->port_connections = malloc(sizeof(LAPortConnection));
 
     logic_analyzer_scene_manager_init(app);
     logic_analyzer_view_dispatcher_init(app);
@@ -69,9 +82,13 @@ int32_t logic_analyzer_app(void* p) {
     UNUSED(p);
     LAApp* app = logic_analyzer_init();
 
+    // alloc gpio items
+    app->gpio_items = la_gpio_items_alloc();
+
     // set the scene and launch the main loop
-    Gui* gui = furi_record_open(RECORD_GUI);
-    view_dispatcher_attach_to_gui(app->view_dispatcher, gui, ViewDispatcherTypeFullscreen);
+    app->gui = furi_record_open(RECORD_GUI);
+
+    view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
     // FIXME: CRASH - NULL pointer dereference
     scene_manager_next_scene(app->scene_manager, LaSceneGpioList);
     FURI_LOG_D(TAG, "Starting dispatcher...");
