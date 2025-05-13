@@ -49,6 +49,11 @@ void la_gpio_items_set_pin(LaGPIOItems* items, uint8_t index, bool level) {
     furi_hal_gpio_write(items->pins[index].pin, level);
 }
 
+bool la_gpio_items_get_pin(LaGPIOItems* items, uint8_t index) {
+    furi_assert(index < items->count);
+    return furi_hal_gpio_read(items->pins[index].pin);
+}
+
 const char* la_gpio_items_get_pin_name(LaGPIOItems* items, uint8_t index) {
     furi_assert(index < items->count + 1);
     if(index == items->count) {

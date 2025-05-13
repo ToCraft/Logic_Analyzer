@@ -14,4 +14,6 @@ void la_gpio_items_configure_pin(LaGPIOItems* items, uint8_t index, GpioMode mod
 
 void la_gpio_items_set_pin(LaGPIOItems* items, uint8_t index, bool level);
 
+bool la_gpio_items_get_pin(LaGPIOItems* items, uint8_t index);
+
 const char* la_gpio_items_get_pin_name(LaGPIOItems* items, uint8_t index);
