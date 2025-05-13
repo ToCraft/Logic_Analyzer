@@ -16,12 +16,14 @@ typedef struct {
     LaGPIOItems* gpio_items;
     LAConfig* cfg;
 
+    // Dialog screen
+    char* dialog_curr_info;
+    uint16_t dialog_next_scene;
+
     Submenu* gpio_list;
     uint16_t gpio_list_select_con;
 
     VariableItemList* select_port;
-    // 0 - False, 1 - True
-    uint8_t del_curr;
 
     DialogEx* dialog;
 } LAApp;

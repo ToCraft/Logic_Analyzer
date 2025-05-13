@@ -3,5 +3,6 @@ typedef enum {
     LaEventGpioListEdit,
     LaEventGpioListCreate,
     LaEventGpioListDone,
-    LaEventConDelete
+    LaEventConDelete,
+    LaEventDialogContinue
 } LaCustomEvent;

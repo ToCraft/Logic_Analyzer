@@ -96,6 +96,20 @@ bool la_scene_gpio_list_on_event(void* context, SceneManagerEvent event) {
             return true;
             break;
         case LaEventGpioListDone:
+            if(app->cfg->port_connections_count == 0) {
+                // warn that there aren't any port connections
+                app->dialog_next_scene = LaSceneGpioList;
+                app->dialog_curr_info = "No port\nconnections found!";
+            } else if(!valid_port_connections(
+                          app->cfg->port_connections, app->cfg->port_connections_count)) {
+                // warn that there are duplicate port usages
+                app->dialog_next_scene = LaSceneGpioList;
+                app->dialog_curr_info = "Duplicate port\nconnections found!";
+            } else {
+                // continue to analyzing
+                app->dialog_next_scene = LaSceneGpioList;
+                app->dialog_curr_info = "Start Analyzing?";
+            }
             scene_manager_next_scene(app->scene_manager, LaSceneDialog);
             return true;
             break;

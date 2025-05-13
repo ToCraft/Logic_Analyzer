@@ -42,3 +42,13 @@ void la_remove_element(void* arr[], int* size, int index) {
     // reduce size
     (*size)--;
 }
+
+// 0 - False, 1 - True
+uint8_t la_contains(uint8_t* arr, int size, uint8_t* x) {
+    for(int i = 0; i < size; i++) {
+        if(arr[i] == *x) {
+            return 1;
+        }
+    }
+    return 0;
+}
