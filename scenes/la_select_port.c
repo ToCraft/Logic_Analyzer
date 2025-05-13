@@ -87,7 +87,7 @@ void la_scene_select_port_on_enter(void* context) {
     VariableItem* del =
         variable_item_list_add(app->select_port, "Delete", 2, la_select_port_delete, app);
     variable_item_set_current_value_index(del, 0);
-    variable_item_set_current_value_text(del, "False");
+    variable_item_set_current_value_text(del, "");
 
     view_dispatcher_switch_to_view(app->view_dispatcher, LA_SelectPort);
 }
