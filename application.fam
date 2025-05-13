@@ -1,17 +1,14 @@
-# For details & more options, see documentation/AppManifests.md in firmware repo
-
 App(
     appid="logic_analyzer",  # Must be unique
     name="Logic Analyzer",  # Displayed in menus
     apptype=FlipperAppType.EXTERNAL,
     entry_point="logic_analyzer_app",
     stack_size=2 * 1024,
-    fap_category="Examples",
-    # Optional values
-    # fap_version="0.1",
+    fap_category="GPIO",
+    fap_version="0.1",
     fap_icon="logic_analyzer.png",  # 10x10 1-bit PNG
-    # fap_description="A simple app",
-    # fap_author="J. Doe",
-    # fap_weburl="https://github.com/user/logic_analyzer",
+    fap_description="Simple logic Analyzer for F0",
+    fap_author="To_Craft",
+    fap_weburl="https://github.com/ToCraft/Logic_Analyzer",
     fap_icon_assets="images",  # Image assets to compile for this application
 )
