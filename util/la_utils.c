@@ -29,3 +29,16 @@ void la_concat(char* dest, const char* src) {
     }
     *dest = '\0';
 }
+
+void la_remove_element(void* arr[], int* size, int index) {
+    if(index < 0 || index >= *size) {
+        // Invalid index
+        return;
+    }
+    // Shift pointers to the left
+    for(int i = index; i < *size - 1; i++) {
+        arr[i] = arr[i + 1];
+    }
+    // reduce size
+    (*size)--;
+}

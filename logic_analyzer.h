@@ -1,6 +1,7 @@
 #pragma once
 #include "gui/scene_manager.h"
 #include "gui/view_dispatcher.h"
+#include "gui/modules/dialog_ex.h"
 #include "gui/modules/submenu.h"
 #include "gui/modules/variable_item_list.h"
 #include "la_gpio_items.h"
@@ -19,11 +20,16 @@ typedef struct {
     uint16_t gpio_list_select_con;
 
     VariableItemList* select_port;
+    // 0 - False, 1 - True
+    uint8_t del_curr;
+
+    DialogEx* dialog;
 } LAApp;
 
 // <-------- GUI -------->
 // View Types
 typedef enum {
     LA_GpioList,
-    LA_SelectPort
+    LA_SelectPort,
+    LA_Dialog
 } LAView;

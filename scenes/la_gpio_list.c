@@ -23,6 +23,14 @@ void la_gpio_list_menu_callback_create_con(void* context, uint32_t index) {
     scene_manager_handle_custom_event(app->scene_manager, LaEventGpioListCreate);
 }
 
+void la_gpio_list_menu_callback_done(void* context, uint32_t index) {
+    FURI_LOG_T(TAG, "la_gpio_list_menu_callback_done");
+    LAApp* app = context;
+
+    UNUSED(index);
+    scene_manager_handle_custom_event(app->scene_manager, LaEventGpioListDone);
+}
+
 void la_scene_gpio_list_on_enter(void* context) {
     FURI_LOG_T(TAG, "la_scene_gpio_list_on_enter");
     LAApp* app = context;
@@ -51,6 +59,14 @@ void la_scene_gpio_list_on_enter(void* context) {
         la_gpio_list_menu_callback_create_con,
         app);
 
+    // add "Done" Entry
+    submenu_add_item(
+        app->gpio_list,
+        "Done",
+        app->cfg->port_connections_count + 1,
+        la_gpio_list_menu_callback_done,
+        app);
+
     view_dispatcher_switch_to_view(app->view_dispatcher, LA_GpioList);
 }
 
@@ -66,16 +82,23 @@ bool la_scene_gpio_list_on_event(void* context, SceneManagerEvent event) {
     FURI_LOG_T(TAG, "la_scene_gpio_list_on_event");
     LAApp* app = context;
     if(event.type == SceneManagerEventTypeCustom) {
-        if(event.event == LaEventGpioListEdit) {
+        switch(event.event) {
+        case LaEventGpioListEdit:
             app->gpio_list_select_con = submenu_get_selected_item(app->gpio_list);
             scene_manager_next_scene(app->scene_manager, LaSceneSelectPort);
             return true;
-        } else if(event.event == LaEventGpioListCreate) {
-            app->gpio_list_select_con = 0;
+            break;
+        case LaEventGpioListCreate:
             // increase counter
             app->cfg->port_connections_count++;
+            app->gpio_list_select_con = submenu_get_selected_item(app->gpio_list);
             scene_manager_next_scene(app->scene_manager, LaSceneSelectPort);
             return true;
+            break;
+        case LaEventGpioListDone:
+            scene_manager_next_scene(app->scene_manager, LaSceneDialog);
+            return true;
+            break;
         }
     }
     return false;

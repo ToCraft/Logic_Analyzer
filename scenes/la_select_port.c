@@ -15,8 +15,6 @@ void la_select_port_input(VariableItem* item) {
     // write config
     LAPortConnection* connection = &app->cfg->port_connections[app->gpio_list_select_con];
     connection->in = index;
-
-    view_dispatcher_send_custom_event(app->view_dispatcher, LaEventConfigSet);
 }
 
 void la_select_port_output(VariableItem* item) {
@@ -28,8 +26,18 @@ void la_select_port_output(VariableItem* item) {
     // write config
     LAPortConnection* connection = &app->cfg->port_connections[app->gpio_list_select_con];
     connection->out = index;
+}
 
-    view_dispatcher_send_custom_event(app->view_dispatcher, LaEventConfigSet);
+void la_select_port_delete(VariableItem* item) {
+    LAApp* app = variable_item_get_context(item);
+    furi_assert(app);
+    uint8_t index = variable_item_get_current_value_index(item);
+    variable_item_set_current_value_text(item, index == 1 ? "True" : "False");
+
+    if(index) {
+        // send delete con event
+        view_dispatcher_send_custom_event(app->view_dispatcher, LaEventConDelete);
+    }
 }
 
 void la_scene_select_port_on_enter(void* context) {
@@ -75,6 +83,12 @@ void la_scene_select_port_on_enter(void* context) {
     variable_item_set_current_value_text(
         out, la_gpio_items_get_pin_name(app->gpio_items, gpio_out_index));
 
+    // add Delete Option
+    VariableItem* del =
+        variable_item_list_add(app->select_port, "Delete", 2, la_select_port_delete, app);
+    variable_item_set_current_value_index(del, 0);
+    variable_item_set_current_value_text(del, "False");
+
     view_dispatcher_switch_to_view(app->view_dispatcher, LA_SelectPort);
 }
 
@@ -90,8 +104,14 @@ bool la_scene_select_port_on_event(void* context, SceneManagerEvent event) {
     LAApp* app = context;
     UNUSED(app);
 
-    if(event.type == SceneManagerEventTypeCustom && event.event == LaEventConfigSet) {
-        // TODO: handle event
+    if(event.type == SceneManagerEventTypeCustom && event.event == LaEventConDelete) {
+        // remove port connection from config
+        la_remove_element(
+            (void**)app->cfg->port_connections,
+            (int*)&app->cfg->port_connections_count,
+            app->gpio_list_select_con);
+        // head back to the gpio list
+        scene_manager_next_scene(app->scene_manager, LaSceneGpioList);
         return true;
     }
     return false;
