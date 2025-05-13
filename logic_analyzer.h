@@ -24,13 +24,14 @@ typedef struct {
     uint16_t gpio_list_select_con;
 
     VariableItemList* select_port;
-
+    VariableItemList* cfg_scene;
     DialogEx* dialog;
 } LAApp;
 
 // <-------- GUI -------->
 // View Types
 typedef enum {
+    LA_CfgScene,
     LA_GpioList,
     LA_SelectPort,
     LA_Dialog

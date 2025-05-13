@@ -32,7 +32,6 @@ void la_select_port_delete(VariableItem* item) {
     LAApp* app = variable_item_get_context(item);
     furi_assert(app);
     uint8_t index = variable_item_get_current_value_index(item);
-    variable_item_set_current_value_text(item, index == 1 ? "True" : "False");
 
     if(index) {
         // send delete con event
@@ -110,8 +109,7 @@ bool la_scene_select_port_on_event(void* context, SceneManagerEvent event) {
             (void**)app->cfg->port_connections,
             (int*)&app->cfg->port_connections_count,
             app->gpio_list_select_con);
-        // head back to the gpio list
-        scene_manager_next_scene(app->scene_manager, LaSceneGpioList);
+        scene_manager_search_and_switch_to_previous_scene(app->scene_manager, LaSceneGpioList);
         return true;
     }
     return false;

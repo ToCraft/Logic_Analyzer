@@ -39,8 +39,7 @@ bool la_scene_dialog_on_event(void* context, SceneManagerEvent event) {
 
     if(event.type == SceneManagerEventTypeCustom && event.event == LaEventDialogContinue) {
         // switch scene
-        view_dispatcher_switch_to_view(app->view_dispatcher, app->dialog_next_scene);
-        scene_manager_next_scene(app->scene_manager, LaSceneGpioList);
+        scene_manager_next_scene(app->scene_manager, app->dialog_next_scene);
         return true;
     }
     return false;

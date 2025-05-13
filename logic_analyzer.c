@@ -22,6 +22,7 @@ bool la_scene_manager_navigation_event_callback(void* context) {
 void logic_analyzer_free(LAApp* app) {
     FURI_LOG_T(TAG, "free logic analyzer");
     scene_manager_free(app->scene_manager);
+    view_dispatcher_remove_view(app->view_dispatcher, LA_CfgScene);
     view_dispatcher_remove_view(app->view_dispatcher, LA_GpioList);
     view_dispatcher_remove_view(app->view_dispatcher, LA_SelectPort);
     view_dispatcher_remove_view(app->view_dispatcher, LA_Dialog);
@@ -29,6 +30,7 @@ void logic_analyzer_free(LAApp* app) {
     // free scenes
     submenu_free(app->gpio_list);
     variable_item_list_free(app->select_port);
+    variable_item_list_free(app->cfg_scene);
     dialog_ex_free(app->dialog);
 
     la_gpio_items_free(app->gpio_items);
@@ -50,6 +52,7 @@ void logic_analyzer_view_dispatcher_init(LAApp* app) {
 
     // allocate views
     app->gpio_list = submenu_alloc();
+    app->cfg_scene = variable_item_list_alloc();
     app->select_port = variable_item_list_alloc();
     app->dialog = dialog_ex_alloc();
 
@@ -64,6 +67,8 @@ void logic_analyzer_view_dispatcher_init(LAApp* app) {
 
     // add views to the dispatcher, indexed by their enum value
     FURI_LOG_D(TAG, "adding views");
+    view_dispatcher_add_view(
+        app->view_dispatcher, LA_CfgScene, variable_item_list_get_view(app->cfg_scene));
     view_dispatcher_add_view(app->view_dispatcher, LA_GpioList, submenu_get_view(app->gpio_list));
     view_dispatcher_add_view(
         app->view_dispatcher, LA_SelectPort, variable_item_list_get_view(app->select_port));
@@ -94,7 +99,7 @@ int32_t logic_analyzer_app(void* p) {
 
     view_dispatcher_attach_to_gui(app->view_dispatcher, app->gui, ViewDispatcherTypeFullscreen);
     // FIXME: CRASH - NULL pointer dereference
-    scene_manager_next_scene(app->scene_manager, LaSceneGpioList);
+    scene_manager_next_scene(app->scene_manager, LaSceneCfgScene);
     FURI_LOG_D(TAG, "Starting dispatcher...");
     view_dispatcher_run(app->view_dispatcher);
 
